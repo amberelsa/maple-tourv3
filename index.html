@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>梨山武陵賞楓二日遊 - 筆記版</title>
+    <title>梨山武陵賞楓二日遊 - 完整版</title>
     <!-- 引入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 引入 Font Awesome 圖示 -->
@@ -46,7 +46,7 @@
 
         /* 筆記區樣式 */
         .note-area {
-            background-color: #fffbeb; /* 淡黃色便利貼風格 */
+            background-color: #fffbeb;
             border: 1px dashed #fcd34d;
             transition: all 0.3s ease;
         }
@@ -69,55 +69,73 @@
         .lightbox {
             display: none;
             position: fixed;
-            z-index: 1000;
+            z-index: 2000;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
+            background-color: rgba(0, 0, 0, 0.95);
             justify-content: center;
             align-items: center;
-            overflow: auto;
+            overflow: hidden;
+            touch-action: none; /* 防止背景滾動 */
         }
         .lightbox.active {
             display: flex;
         }
         .lightbox-img {
-            max-width: 95%;
-            max-height: 95vh;
+            max-width: 100%;
+            max-height: 100vh;
             object-fit: contain;
-            transition: transform 0.25s ease;
-            cursor: zoom-in;
+            cursor: zoom-out;
+            transition: transform 0.2s;
         }
         .lightbox-close {
             position: absolute;
             top: 20px;
-            right: 30px;
+            right: 20px;
             color: white;
-            font-size: 40px;
-            cursor: pointer;
-            z-index: 1001;
-        }
-        /* 縮圖樣式 */
-        .map-thumbnail-container {
-            position: relative;
-            overflow: hidden;
-            border-radius: 0.5rem;
-            border: 2px solid #e5e7eb;
-            cursor: pointer;
-        }
-        .map-thumbnail-container:hover .map-overlay {
-            opacity: 1;
-        }
-        .map-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0.4);
+            background: rgba(0,0,0,0.5);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 2001;
+            border: 1px solid white;
+        }
+
+        /* 縮圖容器樣式 */
+        .img-container {
+            position: relative;
+            overflow: hidden;
+        }
+        .img-zoom-hint {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+            padding: 20px 10px 10px;
+            color: white;
             opacity: 0;
             transition: opacity 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .img-container:hover .img-zoom-hint {
+            opacity: 1;
+        }
+        /* 手機版預設顯示提示 */
+        @media (max-width: 768px) {
+            .img-zoom-hint {
+                opacity: 1;
+                background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
+            }
         }
     </style>
 </head>
@@ -125,40 +143,67 @@
 
     <!-- Hero Header -->
     <header class="bg-gradient-to-r from-amber-700 to-red-800 text-white shadow-xl">
-        <div class="container mx-auto px-4 py-16 text-center">
-            <h1 class="text-4xl md:text-5xl font-extrabold mb-3 tracking-wide">
+        <div class="container mx-auto px-4 py-12 pb-24 text-center">
+            <h1 class="text-3xl md:text-5xl font-extrabold mb-3 tracking-wide">
                 <i class="fas fa-leaf mr-4 text-yellow-300 transform rotate-45"></i>
                 梨山武陵暖秋賞楓二日遊
             </h1>
-            <p class="text-xl opacity-95 font-light">12/2 (一) — 12/3 (二)｜高山紅葉之旅</p>
+            <p class="text-lg opacity-95 font-light">12/2 (一) — 12/3 (二)｜高山紅葉之旅</p>
         </div>
     </header>
 
+    <!-- NEW: 行程總表圖片區塊 (置頂插入) -->
+    <div class="container mx-auto px-4 -mt-16 relative z-10 mb-8 max-w-4xl">
+        <div class="bg-white p-2 rounded-2xl shadow-xl transform transition hover:scale-[1.01] cursor-pointer" onclick="openLightbox('行程表.jpg')">
+            <div class="img-container rounded-xl overflow-hidden bg-gray-100 relative group">
+                <!-- 圖片 -->
+                <img src="行程表.jpg" alt="行程總表" class="w-full h-auto object-cover mx-auto" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                
+                <!-- 錯誤處理 (如果找不到圖片) -->
+                <div style="display:none" class="flex-col items-center justify-center py-12 text-gray-400 bg-gray-50 h-64">
+                    <i class="fas fa-image fa-3x mb-3"></i>
+                    <p class="text-center font-medium">請將 <strong>行程表.jpg</strong><br>放在此資料夾中</p>
+                </div>
+
+                <!-- 放大提示標籤 -->
+                <div class="img-zoom-hint">
+                    <span class="text-sm font-bold flex items-center bg-black/40 px-3 py-1 rounded-full backdrop-blur-sm border border-white/30">
+                        <i class="fas fa-search-plus mr-2"></i>點擊放大查看完整行程
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Content -->
-    <main class="container mx-auto px-4 py-12 max-w-4xl">
+    <main class="container mx-auto px-4 py-4 max-w-4xl">
 
         <!-- Day 1 -->
         <div class="mb-16">
-            <div class="sticky top-0 z-20 bg-[#fcf8f3] pt-4 pb-6">
-                <h2 class="text-3xl font-bold text-red-900 flex items-center bg-white p-5 rounded-xl shadow-lg border-l-8 border-amber-600">
+            <div class="sticky top-0 z-20 bg-[#fcf8f3] pt-2 pb-6">
+                <h2 class="text-2xl md:text-3xl font-bold text-red-900 flex items-center bg-white p-4 rounded-xl shadow-md border-l-8 border-amber-600">
                     <span class="bg-amber-600 text-white py-1 px-3 rounded-full mr-3 text-lg font-mono">Day 1</span>
-                    12/2 (一) 武陵農場與梨山風華
+                    <div class="flex flex-col md:flex-row md:items-center">
+                        <span>12/2 (一)</span>
+                        <span class="hidden md:inline mx-2">-</span>
+                        <span class="text-base md:text-2xl text-gray-600 md:text-red-900 mt-1 md:mt-0">武陵農場與梨山風華</span>
+                    </div>
                 </h2>
             </div>
 
-            <div class="relative pl-6 md:pl-10 space-y-10 mt-8">
+            <div class="relative pl-6 md:pl-10 space-y-8 mt-4">
                 <div class="timeline-line hidden md:block"></div>
 
                 <!-- 07:00 交通 -->
-                <div class="relative flex flex-col md:flex-row gap-4 transport-highlight bg-white p-6 rounded-xl event-card">
+                <div class="relative flex flex-col md:flex-row gap-4 transport-highlight bg-white p-5 rounded-xl event-card">
                     <div class="md:w-36 flex-shrink-0 flex md:flex-col items-center md:items-start text-blue-700 font-bold text-xl">
                         <i class="fas fa-bus md:hidden mr-2"></i>07:00
                     </div>
                     <div class="flex-grow w-full">
-                        <h3 class="text-2xl font-bold text-gray-800 mb-1">羅東轉運站 出發
+                        <h3 class="text-xl md:text-2xl font-bold text-gray-800 mb-1">羅東轉運站 出發
                             <a href="https://maps.app.goo.gl/RVtVDZkfwmzyTD5U9" target="_blank" class="text-blue-500 hover:text-blue-700 ml-2"><i class="fas fa-map-marked-alt text-lg"></i></a>
                         </h3>
-                        <div class="text-gray-600 mb-2"><i class="fas fa-bus-alt text-blue-500 mr-2"></i>搭乘國光客運 1764 往梨山</div>
+                        <div class="text-gray-600 mb-2 text-sm md:text-base"><i class="fas fa-bus-alt text-blue-500 mr-2"></i>搭乘國光客運 1764 往梨山</div>
                         <p class="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg border border-blue-100"><i class="fas fa-route mr-1"></i>車程約 3 小時，中途會在南山村休息。</p>
                         
                         <!-- 筆記區 -->
@@ -167,54 +212,53 @@
                                 <label class="text-xs text-gray-500 font-medium"><i class="fas fa-pen mr-1"></i>個人備註</label>
                                 <span class="save-indicator" id="saved-note-d1-0700"><i class="fas fa-check-circle mr-1"></i>已自動儲存</span>
                             </div>
-                            <textarea id="note-d1-0700" class="note-area w-full p-3 rounded-lg text-sm text-gray-700 resize-y focus:outline-none" rows="2" placeholder="例如：記得帶暈車藥、水壺..."></textarea>
+                            <textarea id="note-d1-0700" class="note-area w-full p-3 rounded-lg text-sm text-gray-700 resize-y focus:outline-none" rows="2" placeholder="例如：記得帶暈車藥..."></textarea>
                         </div>
                     </div>
                 </div>
 
                 <!-- 10:00 抵達 -->
-                <div class="relative flex flex-col md:flex-row gap-4 bg-white p-6 rounded-xl event-card">
+                <div class="relative flex flex-col md:flex-row gap-4 bg-white p-5 rounded-xl event-card">
                     <div class="md:w-36 flex-shrink-0 flex md:flex-col items-center md:items-start text-gray-600 font-bold text-xl">
                         <i class="fas fa-map-marker-alt md:hidden mr-2"></i>10:00
                     </div>
                     <div class="flex-grow w-full">
-                        <h3 class="text-2xl font-bold text-gray-800 mb-1">抵達 武陵農場</h3>
-                        <div class="text-gray-600 mb-2">
-                            <span class="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full font-medium shadow-sm">行李寄放</span>
+                        <h3 class="text-xl md:text-2xl font-bold text-gray-800 mb-1">抵達 武陵農場</h3>
+                        <div class="text-gray-600 mb-2 text-sm md:text-base">
+                            <span class="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full font-medium shadow-sm inline-block mb-1">行李寄放</span>
                             請至公車站牌對面的 <strong>櫻花超商</strong> 寄放行李（免費）。
                         </div>
 
                         <!-- 筆記區 -->
                         <div class="mt-4 pt-3 border-t border-gray-100">
                             <div class="flex justify-between items-center mb-1">
-                                <label class="text-xs text-gray-500 font-medium"><i class="fas fa-pen mr-1"></i>個人備註</label>
-                                <span class="save-indicator" id="saved-note-d1-1000"><i class="fas fa-check-circle mr-1"></i>已自動儲存</span>
+                                <label class="text-xs text-gray-500 font-medium"><i class="fas fa-pen mr-1"></i>備註</label>
+                                <span class="save-indicator" id="saved-note-d1-1000"><i class="fas fa-check-circle mr-1"></i>儲存</span>
                             </div>
-                            <textarea id="note-d1-1000" class="note-area w-full p-3 rounded-lg text-sm text-gray-700 resize-y focus:outline-none" rows="2" placeholder="在此輸入備註..."></textarea>
+                            <textarea id="note-d1-1000" class="note-area w-full p-3 rounded-lg text-sm text-gray-700 resize-y focus:outline-none" rows="1"></textarea>
                         </div>
                     </div>
                 </div>
 
                 <!-- 10:15 - 14:10 賞楓重點 -->
-                <div class="relative flex flex-col md:flex-row gap-4 maple-highlight p-6 rounded-xl event-card">
+                <div class="relative flex flex-col md:flex-row gap-4 maple-highlight p-5 rounded-xl event-card">
                     <div class="md:w-36 flex-shrink-0 flex md:flex-col items-center md:items-start text-red-800 font-bold text-xl">
                         <i class="fas fa-camera md:hidden mr-2"></i>10:15
                     </div>
                     <div class="flex-grow w-full">
-                        <h3 class="text-2xl font-bold text-red-900 mb-2">
+                        <h3 class="text-xl md:text-2xl font-bold text-red-900 mb-2">
                             <i class="fab fa-envira mr-2"></i>武陵農場 賞楓 
                             <a href="https://maps.app.goo.gl/ncVJD6GbqgrcURb27" target="_blank" class="text-red-500 hover:text-red-700 ml-3"><i class="fas fa-map-marked-alt text-lg"></i></a>
                         </h3>
                         
-                        <!-- 資訊標籤區 -->
-                        <div class="flex flex-wrap items-center gap-3 mb-4">
-                            <span class="text-base text-red-700 font-medium"><i class="far fa-clock mr-1"></i>停留：約 4 小時</span>
-                            <span class="bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full border border-green-200 font-medium">
-                                <i class="fas fa-ticket-alt mr-1"></i>平日全票 $130
+                        <div class="flex flex-wrap items-center gap-2 mb-4">
+                            <span class="text-sm text-red-700 font-medium"><i class="far fa-clock mr-1"></i>約 4 小時</span>
+                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full border border-green-200 font-medium">
+                                <i class="fas fa-ticket-alt mr-1"></i>全票 $130
                             </span>
                         </div>
 
-                        <div class="bg-white/80 p-4 rounded-lg border border-red-200 mb-2 shadow-inner">
+                        <div class="bg-white/80 p-3 rounded-lg border border-red-200 mb-2 shadow-inner text-sm">
                             <h4 class="font-bold text-red-800 mb-1"><i class="fas fa-map-signs mr-1"></i>推薦路線：</h4>
                             <p class="text-gray-700">遊客中心周邊 ➔ 楓林小館 ➔ 武陵茶莊</p>
                         </div>
@@ -222,8 +266,8 @@
                         <!-- 筆記區 -->
                         <div class="mt-4 pt-3 border-t border-red-100/50">
                             <div class="flex justify-between items-center mb-1">
-                                <label class="text-xs text-red-800/70 font-medium"><i class="fas fa-pen mr-1"></i>拍照/賞景筆記</label>
-                                <span class="save-indicator" id="saved-note-d1-1015"><i class="fas fa-check-circle mr-1"></i>已自動儲存</span>
+                                <label class="text-xs text-red-800/70 font-medium"><i class="fas fa-pen mr-1"></i>賞楓筆記</label>
+                                <span class="save-indicator" id="saved-note-d1-1015"><i class="fas fa-check-circle mr-1"></i>儲存</span>
                             </div>
                             <textarea id="note-d1-1015" class="note-area w-full p-3 rounded-lg text-sm text-gray-700 resize-y focus:outline-none" rows="2" placeholder="例如：要在茶莊買伴手禮..."></textarea>
                         </div>
@@ -231,120 +275,78 @@
                 </div>
 
                 <!-- 14:20 交通 -->
-                <div class="relative flex flex-col md:flex-row gap-4 transport-highlight bg-white p-6 rounded-xl event-card">
+                <div class="relative flex flex-col md:flex-row gap-4 transport-highlight bg-white p-5 rounded-xl event-card">
                     <div class="md:w-36 flex-shrink-0 flex md:flex-col items-center md:items-start text-blue-700 font-bold text-xl">
                         <i class="fas fa-bus md:hidden mr-2"></i>14:20
                     </div>
                     <div class="flex-grow w-full">
-                        <h3 class="text-2xl font-bold text-gray-800 mb-1">搭車前往梨山</h3>
-                        <p class="text-gray-600">搭乘公車/接駁車（14:20 或 15:19 班次），車程約 1 小時。</p>
-
-                        <!-- 筆記區 -->
-                        <div class="mt-4 pt-3 border-t border-gray-100">
-                            <div class="flex justify-between items-center mb-1">
-                                <label class="text-xs text-gray-500 font-medium"><i class="fas fa-pen mr-1"></i>個人備註</label>
-                                <span class="save-indicator" id="saved-note-d1-1420"><i class="fas fa-check-circle mr-1"></i>已自動儲存</span>
-                            </div>
-                            <textarea id="note-d1-1420" class="note-area w-full p-3 rounded-lg text-sm text-gray-700 resize-y focus:outline-none" rows="2" placeholder="在此輸入備註..."></textarea>
-                        </div>
+                        <h3 class="text-xl md:text-2xl font-bold text-gray-800 mb-1">搭車前往梨山</h3>
+                        <p class="text-gray-600 text-sm md:text-base">搭乘公車/接駁車（14:20 或 15:19 班次），車程約 1 小時。</p>
+                        <textarea id="note-d1-1420" class="mt-3 note-area w-full p-2 rounded-lg text-sm text-gray-700 resize-y focus:outline-none" rows="1" placeholder="備註..."></textarea>
                     </div>
                 </div>
 
                 <!-- 15:30 抵達 -->
-                <div class="relative flex flex-col md:flex-row gap-4 bg-white p-6 rounded-xl event-card">
+                <div class="relative flex flex-col md:flex-row gap-4 bg-white p-5 rounded-xl event-card">
                     <div class="md:w-36 flex-shrink-0 flex md:flex-col items-center md:items-start text-gray-600 font-bold text-xl">
                         <i class="fas fa-phone-alt md:hidden mr-2"></i>15:30
                     </div>
                     <div class="flex-grow w-full">
-                        <h3 class="text-2xl font-bold text-gray-800 mb-1">抵達梨山 & 聯繫接駁</h3>
-                        <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 my-2 rounded-lg">
+                        <h3 class="text-xl md:text-2xl font-bold text-gray-800 mb-1">抵達梨山 & 聯繫接駁</h3>
+                        <div class="bg-yellow-50 border-l-4 border-yellow-500 p-3 my-2 rounded-lg text-sm md:text-base">
                             <p class="font-bold text-gray-800"><i class="fas fa-hotel mr-2 text-yellow-600"></i>燕華樓大旅社
                                 <a href="https://www.google.com/maps/search/?api=1&query=%E7%87%95%E8%8F%AF%E6%A8%93%E5%A4%A7%E6%97%85%E7%A4%BE" target="_blank" class="text-yellow-600 hover:text-yellow-800 ml-2"><i class="fas fa-map-marked-alt text-lg"></i></a>
                             </p>
-                            <p class="text-sm mt-1">電話：<a href="tel:0425989511" class="text-blue-600 underline">04-25989511</a> 或 <a href="tel:0932957797" class="text-blue-600 underline">0932-957797</a></p>
+                            <p class="mt-1">電話：<a href="tel:0425989511" class="text-blue-600 underline">04-25989511</a></p>
                         </div>
-
-                         <!-- 筆記區 -->
-                         <div class="mt-4 pt-3 border-t border-gray-100">
-                            <div class="flex justify-between items-center mb-1">
-                                <label class="text-xs text-gray-500 font-medium"><i class="fas fa-pen mr-1"></i>住宿備註</label>
-                                <span class="save-indicator" id="saved-note-d1-1530"><i class="fas fa-check-circle mr-1"></i>已自動儲存</span>
-                            </div>
-                            <textarea id="note-d1-1530" class="note-area w-full p-3 rounded-lg text-sm text-gray-700 resize-y focus:outline-none" rows="2" placeholder="例如：確認早餐時間、wifi密碼..."></textarea>
-                        </div>
+                        <textarea id="note-d1-1530" class="mt-2 note-area w-full p-2 rounded-lg text-sm text-gray-700 resize-y focus:outline-none" rows="1" placeholder="住宿備註..."></textarea>
                     </div>
                 </div>
 
                 <!-- 16:00 入住 -->
-                <div class="relative flex flex-col md:flex-row gap-4 bg-white p-6 rounded-xl event-card">
+                <div class="relative flex flex-col md:flex-row gap-4 bg-white p-5 rounded-xl event-card">
                     <div class="md:w-36 flex-shrink-0 flex md:flex-col items-center md:items-start text-gray-600 font-bold text-xl">
                         <i class="fas fa-suitcase-rolling md:hidden mr-2"></i>16:00
                     </div>
                     <div class="flex-grow w-full">
-                        <h3 class="text-2xl font-bold text-gray-800 mb-1">辦理入住</h3>
-                        <p class="text-gray-600">入住燕華樓大旅社（含早餐 $2500）。</p>
-                        
-                        <!-- 筆記區 -->
-                        <div class="mt-4 pt-3 border-t border-gray-100">
-                            <div class="flex justify-between items-center mb-1">
-                                <label class="text-xs text-gray-500 font-medium"><i class="fas fa-pen mr-1"></i>個人備註</label>
-                                <span class="save-indicator" id="saved-note-d1-1600"><i class="fas fa-check-circle mr-1"></i>已自動儲存</span>
-                            </div>
-                            <textarea id="note-d1-1600" class="note-area w-full p-3 rounded-lg text-sm text-gray-700 resize-y focus:outline-none" rows="2" placeholder="在此輸入備註..."></textarea>
-                        </div>
+                        <h3 class="text-xl md:text-2xl font-bold text-gray-800 mb-1">辦理入住</h3>
+                        <p class="text-gray-600 text-sm md:text-base">入住燕華樓大旅社（含早餐 $2500）。</p>
                     </div>
                 </div>
 
                 <!-- 傍晚 漫遊 -->
-                <div class="relative flex flex-col md:flex-row gap-4 bg-gradient-to-r from-purple-50 to-white p-6 rounded-xl event-card border border-purple-100">
+                <div class="relative flex flex-col md:flex-row gap-4 bg-gradient-to-r from-purple-50 to-white p-5 rounded-xl event-card border border-purple-100">
                     <div class="md:w-36 flex-shrink-0 flex md:flex-col items-center md:items-start text-purple-700 font-bold text-xl">
                         <i class="fas fa-moon md:hidden mr-2"></i>傍晚
                     </div>
                     <div class="flex-grow w-full">
-                        <h3 class="text-2xl font-bold text-purple-900 mb-2">梨山漫遊</h3>
-                        <div class="space-y-4">
+                        <h3 class="text-xl md:text-2xl font-bold text-purple-900 mb-2">梨山漫遊</h3>
+                        <div class="space-y-3 text-sm md:text-base">
                             <div>
-                                <h4 class="font-bold text-gray-800 text-lg"><i class="fas fa-landmark mr-2 text-purple-500"></i>梨山賓館
-                                    <a href="https://www.google.com/maps/search/?api=1&query=%E6%A2%A8%E5%B1%B1%E8%B3%93%E9%A4%A8" target="_blank" class="text-purple-500 hover:text-purple-700 ml-2"><i class="fas fa-map-marked-alt text-base"></i></a>
+                                <h4 class="font-bold text-gray-800"><i class="fas fa-landmark mr-2 text-purple-500"></i>梨山賓館
+                                    <a href="https://www.google.com/maps/search/?api=1&query=%E6%A2%A8%E5%B1%B1%E8%B3%93%E9%A4%A8" target="_blank" class="text-purple-500 hover:text-purple-700 ml-2"><i class="fas fa-map-marked-alt"></i></a>
                                 </h4>
-                                <p class="text-sm text-gray-600 ml-6">全台最高宮殿式建築。後方<strong>「楓之谷」</strong>可賞楓、觀星。</p>
+                                <p class="text-gray-600 ml-6">全台最高宮殿式建築。後方<strong>「楓之谷」</strong>可賞楓、觀星。</p>
                             </div>
                             <div>
-                                <h4 class="font-bold text-gray-800 text-lg"><i class="fas fa-university mr-2 text-purple-500"></i>文物陳列館
-                                    <a href="https://www.google.com/maps/search/?api=1&query=%E6%A2%A8%E5%B1%B1%E6%96%87%E7%89%A9%E9%99%B3%E5%88%97%E9%A4%A8" target="_blank" class="text-purple-500 hover:text-purple-700 ml-2"><i class="fas fa-map-marked-alt text-base"></i></a>
+                                <h4 class="font-bold text-gray-800"><i class="fas fa-university mr-2 text-purple-500"></i>文物陳列館
+                                    <a href="https://www.google.com/maps/search/?api=1&query=%E6%A2%A8%E5%B1%B1%E6%96%87%E7%89%A9%E9%99%B3%E5%88%97%E9%A4%A8" target="_blank" class="text-purple-500 hover:text-purple-700 ml-2"><i class="fas fa-map-marked-alt"></i></a>
                                 </h4>
-                                <p class="text-sm text-gray-600 ml-6">了解中橫歷史與泰雅族文化。</p>
+                                <p class="text-gray-600 ml-6">了解中橫歷史與泰雅族文化。</p>
                             </div>
-                        </div>
-
-                         <!-- 筆記區 -->
-                         <div class="mt-4 pt-3 border-t border-purple-100/50">
-                            <div class="flex justify-between items-center mb-1">
-                                <label class="text-xs text-purple-800/70 font-medium"><i class="fas fa-pen mr-1"></i>遊玩筆記</label>
-                                <span class="save-indicator" id="saved-note-d1-eve"><i class="fas fa-check-circle mr-1"></i>已自動儲存</span>
-                            </div>
-                            <textarea id="note-d1-eve" class="note-area w-full p-3 rounded-lg text-sm text-gray-700 resize-y focus:outline-none" rows="2" placeholder="例如：要記得看星星..."></textarea>
                         </div>
                     </div>
                 </div>
 
                  <!-- 晚餐 -->
-                 <div class="relative flex flex-col md:flex-row gap-4 bg-white p-6 rounded-xl event-card">
+                 <div class="relative flex flex-col md:flex-row gap-4 bg-white p-5 rounded-xl event-card">
                     <div class="md:w-36 flex-shrink-0 flex md:flex-col items-center md:items-start text-gray-600 font-bold text-xl">
                         <i class="fas fa-utensils md:hidden mr-2"></i>晚餐
                     </div>
                     <div class="flex-grow w-full">
-                        <h3 class="text-2xl font-bold text-gray-800 mb-1">梨山街區用餐</h3>
-                        <p class="text-gray-600">推薦：當地高山蔬菜、季節水果（蘋果）。</p>
-
-                        <!-- 筆記區 -->
-                        <div class="mt-4 pt-3 border-t border-gray-100">
-                            <div class="flex justify-between items-center mb-1">
-                                <label class="text-xs text-gray-500 font-medium"><i class="fas fa-pen mr-1"></i>美食筆記</label>
-                                <span class="save-indicator" id="saved-note-d1-din"><i class="fas fa-check-circle mr-1"></i>已自動儲存</span>
-                            </div>
-                            <textarea id="note-d1-din" class="note-area w-full p-3 rounded-lg text-sm text-gray-700 resize-y focus:outline-none" rows="2" placeholder="例如：想吃哪一家餐廳..."></textarea>
-                        </div>
+                        <h3 class="text-xl md:text-2xl font-bold text-gray-800 mb-1">梨山街區用餐</h3>
+                        <p class="text-gray-600 text-sm md:text-base">推薦：當地高山蔬菜、季節水果（蘋果）。</p>
+                        <textarea id="note-d1-din" class="mt-3 note-area w-full p-2 rounded-lg text-sm text-gray-700 resize-y focus:outline-none" rows="1" placeholder="晚餐想法..."></textarea>
                     </div>
                 </div>
             </div>
@@ -352,127 +354,89 @@
 
         <!-- Day 2 -->
         <div class="mb-16">
-            <div class="sticky top-0 z-20 bg-[#fcf8f3] pt-4 pb-6">
-                <h2 class="text-3xl font-bold text-orange-800 flex items-center bg-white p-5 rounded-xl shadow-lg border-l-8 border-orange-600">
+            <div class="sticky top-0 z-20 bg-[#fcf8f3] pt-2 pb-6">
+                <h2 class="text-2xl md:text-3xl font-bold text-orange-800 flex items-center bg-white p-4 rounded-xl shadow-md border-l-8 border-orange-600">
                     <span class="bg-orange-600 text-white py-1 px-3 rounded-full mr-3 text-lg font-mono">Day 2</span>
-                    12/3 (二) 福壽山農場與回程
+                    <div class="flex flex-col md:flex-row md:items-center">
+                        <span>12/3 (二)</span>
+                        <span class="hidden md:inline mx-2">-</span>
+                        <span class="text-base md:text-2xl text-gray-600 md:text-orange-900 mt-1 md:mt-0">福壽山農場與回程</span>
+                    </div>
                 </h2>
             </div>
 
-            <div class="relative pl-6 md:pl-10 space-y-10 mt-8">
+            <div class="relative pl-6 md:pl-10 space-y-8 mt-4">
                 <div class="timeline-line hidden md:block"></div>
 
                 <!-- 07:30 早餐 -->
-                <div class="relative flex flex-col md:flex-row gap-4 bg-white p-6 rounded-xl event-card">
+                <div class="relative flex flex-col md:flex-row gap-4 bg-white p-5 rounded-xl event-card">
                     <div class="md:w-36 flex-shrink-0 flex md:flex-col items-center md:items-start text-gray-600 font-bold text-xl">
                         <i class="fas fa-coffee md:hidden mr-2"></i>07:30
                     </div>
                     <div class="flex-grow w-full">
-                        <h3 class="text-2xl font-bold text-gray-800 mb-1">早餐與退房</h3>
-                        <p class="text-gray-600">享用民宿早餐。</p>
-
-                        <!-- 筆記區 -->
-                        <div class="mt-4 pt-3 border-t border-gray-100">
-                            <div class="flex justify-between items-center mb-1">
-                                <label class="text-xs text-gray-500 font-medium"><i class="fas fa-pen mr-1"></i>個人備註</label>
-                                <span class="save-indicator" id="saved-note-d2-0730"><i class="fas fa-check-circle mr-1"></i>已自動儲存</span>
-                            </div>
-                            <textarea id="note-d2-0730" class="note-area w-full p-3 rounded-lg text-sm text-gray-700 resize-y focus:outline-none" rows="2" placeholder="在此輸入備註..."></textarea>
-                        </div>
+                        <h3 class="text-xl md:text-2xl font-bold text-gray-800 mb-1">早餐與退房</h3>
+                        <p class="text-gray-600 text-sm md:text-base">享用民宿早餐。</p>
                     </div>
                 </div>
 
                 <!-- 08:30 寄放 -->
-                <div class="relative flex flex-col md:flex-row gap-4 bg-white p-6 rounded-xl event-card">
+                <div class="relative flex flex-col md:flex-row gap-4 bg-white p-5 rounded-xl event-card">
                     <div class="md:w-36 flex-shrink-0 flex md:flex-col items-center md:items-start text-gray-600 font-bold text-xl">
                         <i class="fas fa-luggage-cart md:hidden mr-2"></i>08:30
                     </div>
                     <div class="flex-grow w-full">
-                        <h3 class="text-2xl font-bold text-gray-800 mb-1">寄放行李
+                        <h3 class="text-xl md:text-2xl font-bold text-gray-800 mb-1">寄放行李
                             <a href="https://maps.app.goo.gl/2rqs7soqmn3m8p9V8" target="_blank" class="text-blue-500 hover:text-blue-700 ml-2"><i class="fas fa-map-marked-alt text-lg"></i></a>
                         </h3>
-                        <div class="bg-red-50 text-red-800 p-3 rounded text-base border border-red-200 shadow-sm">
+                        <div class="bg-red-50 text-red-800 p-3 rounded text-sm md:text-base border border-red-200 shadow-sm">
                             <i class="fas fa-exclamation-circle mr-1"></i>
                             <strong>重要：</strong>請協調民宿，退房後送您到 <strong>梨山遊客中心</strong> 或 <strong>梨山站</strong> 寄放行李（免費）。
-                        </div>
-
-                         <!-- 筆記區 -->
-                         <div class="mt-4 pt-3 border-t border-gray-100">
-                            <div class="flex justify-between items-center mb-1">
-                                <label class="text-xs text-gray-500 font-medium"><i class="fas fa-pen mr-1"></i>個人備註</label>
-                                <span class="save-indicator" id="saved-note-d2-0830"><i class="fas fa-check-circle mr-1"></i>已自動儲存</span>
-                            </div>
-                            <textarea id="note-d2-0830" class="note-area w-full p-3 rounded-lg text-sm text-gray-700 resize-y focus:outline-none" rows="2" placeholder="例如：確認行李數量..."></textarea>
                         </div>
                     </div>
                 </div>
 
                 <!-- 09:15 交通 -->
-                <div class="relative flex flex-col md:flex-row gap-4 transport-highlight bg-white p-6 rounded-xl event-card">
+                <div class="relative flex flex-col md:flex-row gap-4 transport-highlight bg-white p-5 rounded-xl event-card">
                     <div class="md:w-36 flex-shrink-0 flex md:flex-col items-center md:items-start text-blue-700 font-bold text-xl">
                         <i class="fas fa-bus md:hidden mr-2"></i>09:15
                     </div>
                     <div class="flex-grow w-full">
-                        <h3 class="text-2xl font-bold text-gray-800 mb-1">前往福壽山農場</h3>
-                        <p class="text-gray-600">搭乘 866區1 線公車，預計 09:27 抵達。</p>
-
-                        <!-- 筆記區 -->
-                        <div class="mt-4 pt-3 border-t border-gray-100">
-                            <div class="flex justify-between items-center mb-1">
-                                <label class="text-xs text-gray-500 font-medium"><i class="fas fa-pen mr-1"></i>個人備註</label>
-                                <span class="save-indicator" id="saved-note-d2-0915"><i class="fas fa-check-circle mr-1"></i>已自動儲存</span>
-                            </div>
-                            <textarea id="note-d2-0915" class="note-area w-full p-3 rounded-lg text-sm text-gray-700 resize-y focus:outline-none" rows="2" placeholder="在此輸入備註..."></textarea>
-                        </div>
+                        <h3 class="text-xl md:text-2xl font-bold text-gray-800 mb-1">前往福壽山農場</h3>
+                        <p class="text-gray-600 text-sm md:text-base">搭乘 866區1 線公車，預計 09:27 抵達。</p>
+                        <textarea id="note-d2-0915" class="mt-3 note-area w-full p-2 rounded-lg text-sm text-gray-700 resize-y focus:outline-none" rows="1" placeholder="備註..."></textarea>
                     </div>
                 </div>
 
                 <!-- 09:30 賞楓 -->
-                <div class="relative flex flex-col md:flex-row gap-4 maple-highlight p-6 rounded-xl event-card">
+                <div class="relative flex flex-col md:flex-row gap-4 maple-highlight p-5 rounded-xl event-card">
                     <div class="md:w-36 flex-shrink-0 flex md:flex-col items-center md:items-start text-red-800 font-bold text-xl">
                         <i class="fas fa-camera md:hidden mr-2"></i>09:30
                     </div>
                     <div class="flex-grow w-full">
-                        <h3 class="text-2xl font-bold text-red-900 mb-2">
+                        <h3 class="text-xl md:text-2xl font-bold text-red-900 mb-2">
                             <i class="fab fa-envira mr-2"></i>福壽山農場 賞楓
                             <a href="https://maps.app.goo.gl/8ZR4Wf84hMzRQ3sc6" target="_blank" class="text-red-500 hover:text-red-700 ml-3"><i class="fas fa-map-marked-alt text-lg"></i></a>
                         </h3>
                         
-                        <!-- 資訊標籤區 -->
-                        <div class="flex flex-wrap items-center gap-3 mb-4">
-                            <span class="text-base text-red-700 font-medium"><i class="far fa-clock mr-1"></i>停留：約 2.5 小時</span>
-                            <span class="bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full border border-green-200 font-medium">
-                                <i class="fas fa-ticket-alt mr-1"></i>平日全票 $80
+                        <div class="flex flex-wrap items-center gap-2 mb-4">
+                            <span class="text-sm text-red-700 font-medium"><i class="far fa-clock mr-1"></i>約 2.5 小時</span>
+                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full border border-green-200 font-medium">
+                                <i class="fas fa-ticket-alt mr-1"></i>全票 $80
                             </span>
                         </div>
 
-                        <!-- 導覽地圖區塊 -->
+                        <!-- 官網地圖按鈕 -->
                         <div class="mb-4">
-                            <div class="map-thumbnail-container" onclick="openLightbox('SiteMapForFushoushanFarm.jpg.jfif')">
-                                <div class="bg-gray-100 p-4 text-center">
-                                    <div class="relative inline-block">
-                                        <!-- 圖片縮圖，如果本地沒有這張圖，會顯示替代文字或圖標 -->
-                                        <img src="SiteMapForFushoushanFarm.jpg.jfif" alt="福壽山農場導覽地圖" class="max-h-32 mx-auto rounded shadow-sm" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
-                                        <div style="display:none" class="text-gray-400 py-4">
-                                            <i class="fas fa-map fa-3x mb-2"></i>
-                                            <p class="text-sm">請將 SiteMapForFushoushanFarm.jpg.jfif <br>放在此網頁相同資料夾</p>
-                                        </div>
-                                        <div class="map-overlay rounded">
-                                            <span class="text-white font-bold bg-black/50 px-3 py-1 rounded-full text-sm">
-                                                <i class="fas fa-search-plus mr-1"></i>點擊放大地圖
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <p class="text-xs text-gray-500 mt-2">點擊上方縮圖可查看完整園區地圖</p>
-                                </div>
-                            </div>
+                            <a href="https://www.fushoushan.com.tw/Outer/Facilities" target="_blank" class="flex items-center justify-center w-full p-3 bg-teal-50 text-teal-700 border border-teal-200 rounded-lg hover:bg-teal-100 transition-colors font-medium">
+                                <i class="fas fa-map mr-2"></i>查看福壽山農場官方導覽地圖
+                            </a>
                         </div>
 
                         <!-- 摺疊式景點介紹 -->
                         <div class="mb-4">
                             <details class="group bg-white/80 rounded-lg border border-red-200 overflow-hidden shadow-sm">
                                 <summary class="flex items-center justify-between p-3 cursor-pointer select-none bg-red-50 hover:bg-red-100 transition-colors">
-                                    <span class="font-bold text-red-900"><i class="fas fa-map-signs mr-2 text-red-600"></i>景點深度介紹 (點擊展開)</span>
+                                    <span class="font-bold text-red-900 text-sm md:text-base"><i class="fas fa-map-signs mr-2 text-red-600"></i>景點深度介紹 (點擊展開)</span>
                                     <span class="transition-transform duration-300 group-open:rotate-180">
                                         <i class="fas fa-chevron-down text-red-400"></i>
                                     </span>
@@ -482,103 +446,69 @@
                                     <!-- 松盧 -->
                                     <div class="border-l-4 border-red-800 pl-3">
                                         <h4 class="font-bold text-red-900 text-base mb-1">🍁 松盧 (招牌明星/必拍熱點)</h4>
-                                        <p class="leading-relaxed mb-2">農場最經典景觀！古樸木造建築周圍環繞掌葉楓與銀杏。11月中至12月初為巔峰，紅黃色彩交織極其濃烈，配上小橋流水，張張如明信片。</p>
+                                        <p class="leading-relaxed mb-2">農場最經典景觀！古樸木造建築周圍環繞掌葉楓與銀杏。紅黃色彩交織極其濃烈。</p>
                                         <div class="text-xs text-amber-800 bg-amber-50 p-2 rounded inline-block border border-amber-100">
-                                            <i class="fas fa-lightbulb mr-1 text-amber-500"></i>
-                                            <strong>貼心提點：</strong>人潮極多！想拍淨空畫面，務必清晨6點前利用晨光卡位拍攝。
+                                            <strong>貼心提點：</strong>想拍淨空畫面，務必清晨6點前卡位。
                                         </div>
                                     </div>
 
                                     <!-- 鴛鴦湖 -->
                                     <div class="border-l-4 border-teal-600 pl-3">
-                                        <h4 class="font-bold text-teal-800 text-base mb-1">🌲 鴛鴦湖景觀步道 (環湖散策)</h4>
-                                        <p class="leading-relaxed">步道平坦好走，環繞湖泊與高山茶園。清晨或傍晚雲霧繚繞時，湖光山色倒影最為夢幻詩意，適合放空拍美照。</p>
+                                        <h4 class="font-bold text-teal-800 text-base mb-1">🌲 鴛鴦湖景觀步道</h4>
+                                        <p class="leading-relaxed">清晨或傍晚雲霧繚繞時，湖光山色倒影最為夢幻詩意。</p>
                                     </div>
 
                                     <!-- 三大樹王 -->
                                     <div class="border-l-4 border-red-500 pl-3">
-                                        <h4 class="font-bold text-red-700 text-base mb-1">🍎 三大樹王 (嫁接奇觀)</h4>
-                                        <p class="leading-relaxed">見證高超農業技術！著名的蘋果王單株即嫁接超過40種品種。開花結果時節，同株樹上掛滿顏色形狀各異的果實，令人嘖嘖稱奇。</p>
+                                        <h4 class="font-bold text-red-700 text-base mb-1">🍎 三大樹王</h4>
+                                        <p class="leading-relaxed">蘋果王單株即嫁接超過40種品種，令人嘖嘖稱奇。</p>
                                     </div>
 
                                     <!-- 製茶廠 -->
                                     <div class="border-l-4 border-green-600 pl-3">
-                                        <h4 class="font-bold text-green-800 text-base mb-1">🍵 製茶廠與茶園 (壯麗地景)</h4>
-                                        <p class="leading-relaxed">福壽長春茶產地。一排排翠綠茶樹沿山坡層疊種植，線條優美開闊，是攝影愛好者必訪的靜謐景點。</p>
+                                        <h4 class="font-bold text-green-800 text-base mb-1">🍵 製茶廠與茶園</h4>
+                                        <p class="leading-relaxed">福壽長春茶產地，線條優美開闊。</p>
                                     </div>
 
                                 </div>
                             </details>
                         </div>
 
-                         <!-- 筆記區 -->
-                         <div class="mt-4 pt-3 border-t border-red-100/50">
-                            <div class="flex justify-between items-center mb-1">
-                                <label class="text-xs text-red-800/70 font-medium"><i class="fas fa-pen mr-1"></i>賞楓筆記</label>
-                                <span class="save-indicator" id="saved-note-d2-0930"><i class="fas fa-check-circle mr-1"></i>已自動儲存</span>
-                            </div>
-                            <textarea id="note-d2-0930" class="note-area w-full p-3 rounded-lg text-sm text-gray-700 resize-y focus:outline-none" rows="2" placeholder="例如：要幫家人多拍幾張..."></textarea>
-                        </div>
+                        <textarea id="note-d2-0930" class="mt-3 note-area w-full p-2 rounded-lg text-sm text-gray-700 resize-y focus:outline-none" rows="1" placeholder="賞楓筆記..."></textarea>
                     </div>
                 </div>
 
                 <!-- 12:00 交通 -->
-                <div class="relative flex flex-col md:flex-row gap-4 transport-highlight bg-white p-6 rounded-xl event-card">
+                <div class="relative flex flex-col md:flex-row gap-4 transport-highlight bg-white p-5 rounded-xl event-card">
                     <div class="md:w-36 flex-shrink-0 flex md:flex-col items-center md:items-start text-blue-700 font-bold text-xl">
                         <i class="fas fa-bus md:hidden mr-2"></i>12:00
                     </div>
                     <div class="flex-grow w-full">
-                        <h3 class="text-2xl font-bold text-gray-800 mb-1">返回梨山</h3>
-                        <p class="text-gray-600">搭乘 866區1 線公車返回梨山站。</p>
-                        
-                        <!-- 筆記區 -->
-                        <div class="mt-4 pt-3 border-t border-gray-100">
-                            <div class="flex justify-between items-center mb-1">
-                                <label class="text-xs text-gray-500 font-medium"><i class="fas fa-pen mr-1"></i>個人備註</label>
-                                <span class="save-indicator" id="saved-note-d2-1200"><i class="fas fa-check-circle mr-1"></i>已自動儲存</span>
-                            </div>
-                            <textarea id="note-d2-1200" class="note-area w-full p-3 rounded-lg text-sm text-gray-700 resize-y focus:outline-none" rows="2" placeholder="在此輸入備註..."></textarea>
-                        </div>
+                        <h3 class="text-xl md:text-2xl font-bold text-gray-800 mb-1">返回梨山</h3>
+                        <p class="text-gray-600 text-sm md:text-base">搭乘 866區1 線公車返回梨山站。</p>
                     </div>
                 </div>
 
                 <!-- 12:20 午餐 -->
-                <div class="relative flex flex-col md:flex-row gap-4 bg-white p-6 rounded-xl event-card">
+                <div class="relative flex flex-col md:flex-row gap-4 bg-white p-5 rounded-xl event-card">
                     <div class="md:w-36 flex-shrink-0 flex md:flex-col items-center md:items-start text-gray-600 font-bold text-xl">
                         <i class="fas fa-utensils md:hidden mr-2"></i>12:20
                     </div>
                     <div class="flex-grow w-full">
-                        <h3 class="text-2xl font-bold text-gray-800 mb-1">午餐時間</h3>
-                        <p class="text-gray-600">迅速取回行李，並在梨山車站附近簡單用餐。</p>
-
-                         <!-- 筆記區 -->
-                         <div class="mt-4 pt-3 border-t border-gray-100">
-                            <div class="flex justify-between items-center mb-1">
-                                <label class="text-xs text-gray-500 font-medium"><i class="fas fa-pen mr-1"></i>午餐筆記</label>
-                                <span class="save-indicator" id="saved-note-d2-1220"><i class="fas fa-check-circle mr-1"></i>已自動儲存</span>
-                            </div>
-                            <textarea id="note-d2-1220" class="note-area w-full p-3 rounded-lg text-sm text-gray-700 resize-y focus:outline-none" rows="2" placeholder="例如：買車上吃的零食..."></textarea>
-                        </div>
+                        <h3 class="text-xl md:text-2xl font-bold text-gray-800 mb-1">午餐時間</h3>
+                        <p class="text-gray-600 text-sm md:text-base">迅速取回行李，並在梨山車站附近簡單用餐。</p>
+                        <textarea id="note-d2-1220" class="mt-3 note-area w-full p-2 rounded-lg text-sm text-gray-700 resize-y focus:outline-none" rows="1" placeholder="午餐筆記..."></textarea>
                     </div>
                 </div>
 
                 <!-- 13:00 交通 -->
-                <div class="relative flex flex-col md:flex-row gap-4 transport-highlight bg-white p-6 rounded-xl event-card">
+                <div class="relative flex flex-col md:flex-row gap-4 transport-highlight bg-white p-5 rounded-xl event-card">
                     <div class="md:w-36 flex-shrink-0 flex md:flex-col items-center md:items-start text-blue-700 font-bold text-xl">
                         <i class="fas fa-bus md:hidden mr-2"></i>13:00
                     </div>
                     <div class="flex-grow w-full">
-                        <h3 class="text-2xl font-bold text-gray-800 mb-1">梨山站 返程</h3>
-                        <p class="text-gray-600">搭乘國光客運 1764 線往羅東。</p>
-
-                         <!-- 筆記區 -->
-                         <div class="mt-4 pt-3 border-t border-gray-100">
-                            <div class="flex justify-between items-center mb-1">
-                                <label class="text-xs text-gray-500 font-medium"><i class="fas fa-pen mr-1"></i>個人備註</label>
-                                <span class="save-indicator" id="saved-note-d2-1300"><i class="fas fa-check-circle mr-1"></i>已自動儲存</span>
-                            </div>
-                            <textarea id="note-d2-1300" class="note-area w-full p-3 rounded-lg text-sm text-gray-700 resize-y focus:outline-none" rows="2" placeholder="例如：準備好耳機..."></textarea>
-                        </div>
+                        <h3 class="text-xl md:text-2xl font-bold text-gray-800 mb-1">梨山站 返程</h3>
+                        <p class="text-gray-600 text-sm md:text-base">搭乘國光客運 1764 線往羅東。</p>
                     </div>
                 </div>
 
@@ -588,10 +518,10 @@
                         <i class="fas fa-home md:hidden mr-2"></i>16:30
                     </div>
                     <div class="flex-grow w-full">
-                        <h3 class="text-2xl font-bold text-amber-900 mb-1">抵達 羅東轉運站
+                        <h3 class="text-xl md:text-2xl font-bold text-amber-900 mb-1">抵達 羅東轉運站
                             <a href="https://maps.app.goo.gl/RVtVDZkfwmzyTD5U9" target="_blank" class="text-amber-700 hover:text-amber-900 ml-2"><i class="fas fa-map-marked-alt text-lg"></i></a>
                         </h3>
-                        <p class="text-amber-800 font-medium">圓滿結束愉快的梨山賞楓之旅！</p>
+                        <p class="text-amber-800 font-medium text-sm md:text-base">圓滿結束愉快的梨山賞楓之旅！</p>
                     </div>
                 </div>
 
@@ -599,14 +529,14 @@
         </div>
     </main>
 
-    <footer class="bg-gray-800 text-gray-300 py-10 text-center mt-12">
+    <footer class="bg-gray-800 text-gray-300 py-10 text-center mt-12 pb-24">
         <p class="text-sm">祝您旅途愉快、紅葉滿載！</p>
         <p class="text-xs mt-2 text-gray-500">行程時間僅供參考，請依實際路況與車班為準。</p>
     </footer>
 
     <!-- Lightbox Modal -->
     <div id="lightbox" class="lightbox" onclick="closeLightbox(event)">
-        <span class="lightbox-close" onclick="closeLightbox(event)">&times;</span>
+        <div class="lightbox-close" onclick="closeLightbox(event)">&times;</div>
         <img id="lightbox-img" class="lightbox-img" src="" alt="放大地圖">
     </div>
 
