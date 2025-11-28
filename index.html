@@ -64,6 +64,61 @@
         .save-indicator.show {
             opacity: 1;
         }
+
+        /* 圖片燈箱樣式 */
+        .lightbox {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            justify-content: center;
+            align-items: center;
+            overflow: auto;
+        }
+        .lightbox.active {
+            display: flex;
+        }
+        .lightbox-img {
+            max-width: 95%;
+            max-height: 95vh;
+            object-fit: contain;
+            transition: transform 0.25s ease;
+            cursor: zoom-in;
+        }
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+        /* 縮圖樣式 */
+        .map-thumbnail-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 0.5rem;
+            border: 2px solid #e5e7eb;
+            cursor: pointer;
+        }
+        .map-thumbnail-container:hover .map-overlay {
+            opacity: 1;
+        }
+        .map-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
     </style>
 </head>
 <body class="text-gray-700">
@@ -391,11 +446,26 @@
                             </span>
                         </div>
 
-                        <!-- 官網地圖按鈕 -->
+                        <!-- 導覽地圖區塊 -->
                         <div class="mb-4">
-                            <a href="https://www.fushoushan.com.tw/Outer/Facilities" target="_blank" class="flex items-center justify-center w-full p-3 bg-teal-50 text-teal-700 border border-teal-200 rounded-lg hover:bg-teal-100 transition-colors">
-                                <i class="fas fa-map mr-2"></i>查看福壽山農場官方導覽地圖
-                            </a>
+                            <div class="map-thumbnail-container" onclick="openLightbox('SiteMapForFushoushanFarm.jpg')">
+                                <div class="bg-gray-100 p-4 text-center">
+                                    <div class="relative inline-block">
+                                        <!-- 圖片縮圖，如果本地沒有這張圖，會顯示替代文字或圖標 -->
+                                        <img src="SiteMapForFushoushanFarm.jpg" alt="福壽山農場導覽地圖" class="max-h-32 mx-auto rounded shadow-sm" onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+                                        <div style="display:none" class="text-gray-400 py-4">
+                                            <i class="fas fa-map fa-3x mb-2"></i>
+                                            <p class="text-sm">請將 SiteMapForFushoushanFarm.jpg <br>放在此網頁相同資料夾</p>
+                                        </div>
+                                        <div class="map-overlay rounded">
+                                            <span class="text-white font-bold bg-black/50 px-3 py-1 rounded-full text-sm">
+                                                <i class="fas fa-search-plus mr-1"></i>點擊放大地圖
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-2">點擊上方縮圖可查看完整園區地圖</p>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- 摺疊式景點介紹 -->
@@ -534,6 +604,12 @@
         <p class="text-xs mt-2 text-gray-500">行程時間僅供參考，請依實際路況與車班為準。</p>
     </footer>
 
+    <!-- Lightbox Modal -->
+    <div id="lightbox" class="lightbox" onclick="closeLightbox(event)">
+        <span class="lightbox-close" onclick="closeLightbox(event)">&times;</span>
+        <img id="lightbox-img" class="lightbox-img" src="" alt="放大地圖">
+    </div>
+
     <!-- JavaScript Script -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -558,6 +634,24 @@
                 });
             });
         });
+
+        // Lightbox Functions
+        function openLightbox(imageSrc) {
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightbox-img');
+            lightboxImg.src = imageSrc;
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Disable scrolling
+        }
+
+        function closeLightbox(event) {
+            // Close if clicked on background or close button, but not the image itself
+            if (event.target.id === 'lightbox' || event.target.classList.contains('lightbox-close')) {
+                const lightbox = document.getElementById('lightbox');
+                lightbox.classList.remove('active');
+                document.body.style.overflow = ''; // Enable scrolling
+            }
+        }
     </script>
 
 </body>
