@@ -14,6 +14,7 @@
         body {
             font-family: 'Noto Sans TC', sans-serif;
             background-color: #fcf8f3;
+            -webkit-tap-highlight-color: transparent; /* 移除手機點擊高亮背景 */
         }
         
         .timeline-line {
@@ -69,7 +70,7 @@
         .lightbox {
             display: none;
             position: fixed;
-            z-index: 2000;
+            z-index: 9999; /* 最高層級 */
             top: 0;
             left: 0;
             width: 100%;
@@ -78,10 +79,11 @@
             justify-content: center;
             align-items: center;
             overflow: hidden;
-            touch-action: none; /* 防止背景滾動 */
+            touch-action: none; 
         }
         .lightbox.active {
             display: flex;
+            animation: fadeIn 0.2s ease-out;
         }
         .lightbox-img {
             max-width: 100%;
@@ -96,16 +98,16 @@
             right: 20px;
             color: white;
             background: rgba(0,0,0,0.5);
-            width: 40px;
-            height: 40px;
+            width: 44px; /* 手機好點擊的大小 */
+            height: 44px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 24px;
             cursor: pointer;
-            z-index: 2001;
-            border: 1px solid white;
+            z-index: 10000;
+            border: 1px solid rgba(255,255,255,0.3);
         }
 
         /* 縮圖容器樣式 */
@@ -118,31 +120,25 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
-            padding: 20px 10px 10px;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            padding: 30px 10px 15px;
             color: white;
-            opacity: 0;
-            transition: opacity 0.3s;
+            opacity: 1; /* 手機版常駐顯示 */
             display: flex;
             justify-content: center;
             align-items: center;
         }
-        .img-container:hover .img-zoom-hint {
-            opacity: 1;
-        }
-        /* 手機版預設顯示提示 */
-        @media (max-width: 768px) {
-            .img-zoom-hint {
-                opacity: 1;
-                background: linear-gradient(to top, rgba(0,0,0,0.5), transparent);
-            }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
     </style>
 </head>
 <body class="text-gray-700">
 
     <!-- Hero Header -->
-    <header class="bg-gradient-to-r from-amber-700 to-red-800 text-white shadow-xl">
+    <header class="bg-gradient-to-r from-amber-700 to-red-800 text-white shadow-xl relative z-0">
         <div class="container mx-auto px-4 py-12 pb-24 text-center">
             <h1 class="text-3xl md:text-5xl font-extrabold mb-3 tracking-wide">
                 <i class="fas fa-leaf mr-4 text-yellow-300 transform rotate-45"></i>
@@ -152,9 +148,9 @@
         </div>
     </header>
 
-    <!-- NEW: 行程總表圖片區塊 (置頂插入) -->
-    <div class="container mx-auto px-4 -mt-16 relative z-10 mb-8 max-w-4xl">
-        <div class="bg-white p-2 rounded-2xl shadow-xl transform transition hover:scale-[1.01] cursor-pointer" onclick="openLightbox('行程表.jpg')">
+    <!-- 行程總表圖片區塊 (置頂插入) -->
+    <div class="container mx-auto px-4 -mt-16 relative z-30 mb-8 max-w-4xl">
+        <button type="button" class="w-full text-left bg-white p-2 rounded-2xl shadow-2xl transform transition active:scale-[0.98] cursor-pointer focus:outline-none focus:ring-4 focus:ring-amber-500/50" onclick="openLightbox('行程表.jpg')">
             <div class="img-container rounded-xl overflow-hidden bg-gray-100 relative group">
                 <!-- 圖片 -->
                 <img src="行程表.jpg" alt="行程總表" class="w-full h-auto object-cover mx-auto" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
@@ -167,16 +163,16 @@
 
                 <!-- 放大提示標籤 -->
                 <div class="img-zoom-hint">
-                    <span class="text-sm font-bold flex items-center bg-black/40 px-3 py-1 rounded-full backdrop-blur-sm border border-white/30">
-                        <i class="fas fa-search-plus mr-2"></i>點擊放大查看完整行程
+                    <span class="text-sm font-bold flex items-center bg-black/60 px-4 py-2 rounded-full backdrop-blur-md border border-white/20 shadow-lg">
+                        <i class="fas fa-search-plus mr-2 text-yellow-300"></i>點擊放大查看完整行程
                     </span>
                 </div>
             </div>
-        </div>
+        </button>
     </div>
 
     <!-- Main Content -->
-    <main class="container mx-auto px-4 py-4 max-w-4xl">
+    <main class="container mx-auto px-4 py-4 max-w-4xl relative z-10">
 
         <!-- Day 1 -->
         <div class="mb-16">
@@ -425,11 +421,26 @@
                             </span>
                         </div>
 
-                        <!-- 官網地圖按鈕 -->
+                        <!-- 福壽山農場導覽地圖按鈕 (替換連結為圖片縮圖) -->
                         <div class="mb-4">
-                            <a href="https://www.fushoushan.com.tw/Outer/Facilities" target="_blank" class="flex items-center justify-center w-full p-3 bg-teal-50 text-teal-700 border border-teal-200 rounded-lg hover:bg-teal-100 transition-colors font-medium">
-                                <i class="fas fa-map mr-2"></i>查看福壽山農場官方導覽地圖
-                            </a>
+                            <button type="button" class="w-full text-left bg-teal-50 p-2 rounded-lg border border-teal-200 transform transition active:scale-[0.98] cursor-pointer focus:outline-none focus:ring-2 focus:ring-teal-500/50 group" onclick="openLightbox('SiteMapForFushoushanFarm.jpg.jfif')">
+                                <div class="flex items-center">
+                                    <div class="w-16 h-16 mr-3 rounded overflow-hidden flex-shrink-0 border border-teal-100 relative">
+                                        <img src="SiteMapForFushoushanFarm.jpg.jfif" alt="福壽山農場導覽地圖" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                                        <div style="display:none" class="flex items-center justify-center w-full h-full bg-teal-100 text-teal-500">
+                                            <i class="fas fa-map-marked-alt"></i>
+                                        </div>
+                                        <!-- 縮圖上的放大鏡圖示 -->
+                                        <div class="absolute inset-0 bg-black/20 md:bg-black/0 md:group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                                            <i class="fas fa-search-plus text-white opacity-80 md:opacity-0 md:group-hover:opacity-100 transition-opacity"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-teal-800 text-sm md:text-base">查看福壽山農場導覽地圖</h4>
+                                        <p class="text-xs text-teal-600">點擊放大查看詳細園區位置</p>
+                                    </div>
+                                </div>
+                            </button>
                         </div>
 
                         <!-- 摺疊式景點介紹 -->
